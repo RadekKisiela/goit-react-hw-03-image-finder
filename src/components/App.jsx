@@ -4,6 +4,8 @@ import css from './App.module.css';
 import SearchBar from './searchbar/SearchBar';
 import ImageGallery from './imagegallery/ImageGallery';
 import Button from './button/Button';
+import Modal from './modal/Modal';
+import Loader from './loader/Loader';
 
 const API_KEY = '38505453-c52f6e8f101e639f790909cc4';
 const PER_PAGE = 12;
@@ -20,6 +22,7 @@ class App extends Component {
       selectedImage: null,
       totalImagesCount: 0,
       displayedImagesCount: 0,
+      isModalOpen: false,
     };
   }
 
@@ -38,29 +41,44 @@ class App extends Component {
         webformatURL: image.webformatURL,
         largeImageURL: image.largeImageURL,
       }));
-
-      this.setState(prevState => ({
-        images: [...prevState.images, ...newImages],
-        totalImagesCount: response.data.totalHits,
-        displayedImagesCount: prevState.displayedImagesCount + newImages.length,
-      }));
+      const uniqueNewImages = newImages.filter(
+        newImage =>
+          !this.state.images.some(
+            existingImage => existingImage.id === newImage.id
+          )
+      );
+      this.setState(
+        prevState => ({
+          images: [...prevState.images, ...uniqueNewImages],
+          totalImagesCount: response.data.totalHits,
+          displayedImagesCount:
+            prevState.displayedImagesCount + uniqueNewImages.length,
+        }),
+        () => {
+          console.log('State updated:', this.state);
+        }
+      );
     } catch (error) {
       console.log('Error:', error);
+    } finally {
+      this.setState({ isLoading: false });
     }
-
-    this.setState({ isLoading: false });
   };
 
   handleSearchSubmit = query => {
-    this.setState({
-      images: [],
-      searchQuery: query,
-      page: 1,
-      totalImagesCount: 0,
-      displayedImagesCount: 0,
-    });
-
-    this.fetchImages();
+    console.log('Search Query:', query);
+    this.setState(
+      {
+        images: [],
+        searchQuery: query,
+        page: 1,
+        totalImagesCount: 0,
+        displayedImagesCount: 0,
+      },
+      () => {
+        this.fetchImages();
+      }
+    );
   };
 
   handleLoadMore = () => {
@@ -69,26 +87,36 @@ class App extends Component {
   };
 
   handleImageClick = imageUrl => {
-    this.setState({ selectedImage: imageUrl });
+    this.setState({ selectedImage: imageUrl, isModalOpen: true });
   };
 
   handleCloseModal = () => {
-    this.setState({ selectedImage: null });
+    this.setState({ selectedImage: null, isModalOpen: false });
   };
 
   componentDidMount() {
-    this.fetchImages();
+    console.log('componentDidMount called');
+    if (this.state.images.length !== 0) {
+      this.fetchImages();
+    }
   }
 
   render() {
-    const { images } = this.state;
+    const { images, isModalOpen, selectedImage, isLoading } = this.state;
 
     return (
       <div className={css.App}>
-        <SearchBar onSubmit={this.handleSearchSubmit} />
+        <SearchBar handleSearch={this.handleSearchSubmit} />
         <ImageGallery images={images} onImageClick={this.handleImageClick} />
-
         <Button onClick={this.handleLoadMore} />
+        {this.state.selectedImage && (
+          <Modal
+            isOpen={isModalOpen}
+            imageUrl={selectedImage}
+            onClose={this.handleCloseModal}
+          />
+        )}
+        {isLoading && <Loader />}
       </div>
     );
   }

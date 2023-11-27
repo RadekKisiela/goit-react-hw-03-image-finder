@@ -10,7 +10,9 @@ class SearchBar extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    this.props.handleSearch(event.target.elements.searchInput.value);
+    const searchQuery = event.target.elements.searchInput.value;
+    console.log('Search Query:', searchQuery);
+    this.props.handleSearch(searchQuery);
   }
 
   render() {
