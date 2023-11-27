@@ -47,26 +47,19 @@ class App extends Component {
             existingImage => existingImage.id === newImage.id
           )
       );
-      this.setState(
-        prevState => ({
-          images: [...prevState.images, ...uniqueNewImages],
-          totalImagesCount: response.data.totalHits,
-          displayedImagesCount:
-            prevState.displayedImagesCount + uniqueNewImages.length,
-        }),
-        () => {
-          console.log('State updated:', this.state);
-        }
-      );
+      this.setState(prevState => ({
+        images: [...prevState.images, ...uniqueNewImages],
+        totalImagesCount: response.data.totalHits,
+        displayedImagesCount:
+          prevState.displayedImagesCount + uniqueNewImages.length,
+      }));
     } catch (error) {
-      console.log('Error:', error);
     } finally {
       this.setState({ isLoading: false });
     }
   };
 
   handleSearchSubmit = query => {
-    console.log('Search Query:', query);
     this.setState(
       {
         images: [],
@@ -82,8 +75,12 @@ class App extends Component {
   };
 
   handleLoadMore = () => {
-    this.fetchImages();
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+    this.setState(
+      prevState => ({ page: prevState.page + 1 }),
+      () => {
+        this.fetchImages();
+      }
+    );
   };
 
   handleImageClick = imageUrl => {
@@ -95,7 +92,6 @@ class App extends Component {
   };
 
   componentDidMount() {
-    console.log('componentDidMount called');
     if (this.state.images.length !== 0) {
       this.fetchImages();
     }
