@@ -60,18 +60,13 @@ class App extends Component {
   };
 
   handleSearchSubmit = query => {
-    this.setState(
-      {
-        images: [],
-        searchQuery: query,
-        page: 1,
-        totalImagesCount: 0,
-        displayedImagesCount: 0,
-      },
-      () => {
-        this.fetchImages();
-      }
-    );
+    this.setState({
+      images: [],
+      searchQuery: query,
+      page: 1,
+      totalImagesCount: 0,
+      displayedImagesCount: 0,
+    });
   };
 
   handleLoadMore = () => {
