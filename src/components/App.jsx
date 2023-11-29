@@ -75,12 +75,7 @@ class App extends Component {
   };
 
   handleLoadMore = () => {
-    this.setState(
-      prevState => ({ page: prevState.page + 1 }),
-      () => {
-        this.fetchImages();
-      }
-    );
+    this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
   handleImageClick = imageUrl => {
@@ -93,6 +88,15 @@ class App extends Component {
 
   componentDidMount() {
     if (this.state.images.length !== 0) {
+      this.fetchImages();
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.searchQuery !== this.state.searchQuery ||
+      prevState.page !== this.state.page
+    ) {
       this.fetchImages();
     }
   }
